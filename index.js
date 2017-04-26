@@ -1,4 +1,5 @@
 const spawn = require('child_process').spawn
+const CDP = require('chrome-remote-interface')
 
 const chrome = spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   [
@@ -16,8 +17,28 @@ const chrome = spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chro
   ]
 )
 
+setTimeout(() => {
+  CDP((client) => {
+    // Extract used DevTools domains.
+    const {Page, Runtime} = client
 
+    // Enable events on domains we are interested in.
+    Promise.all([
+      Page.enable()
+    ]).then(() => {
+      return Page.navigate({url: 'https://tylingsoft.com'})
+    })
 
-setTimeout(function () {
-  const result = chrome.kill('SIGINT')
+    // Evaluate outerHTML after page has loaded.
+    Page.loadEventFired(() => {
+      Runtime.evaluate({expression: 'document.body.outerHTML'}).then((result) => {
+        console.log(result.result.value)
+        client.close()
+        chrome.kill('SIGINT')
+      })
+    })
+  }).on('error', (err) => {
+    console.error('Cannot connect to browser:', err)
+    chrome.kill('SIGINT')
+  })
 }, 5000)

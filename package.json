@@ -3,5 +3,8 @@
   "version": "0.1.0",
   "devDependencies": {
     "standard": "^10.0.2"
+  },
+  "dependencies": {
+    "chrome-remote-interface": "^0.20.0"
   }
 }
