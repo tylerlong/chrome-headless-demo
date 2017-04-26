@@ -18,27 +18,23 @@ const chrome = spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chro
 )
 
 setTimeout(() => {
-  CDP((client) => {
+  CDP(async (client) => {
     // Extract used DevTools domains.
-    const {Page, Runtime} = client
+    const { Page, Runtime } = client
 
     // Enable events on domains we are interested in.
-    Promise.all([
-      Page.enable()
-    ]).then(() => {
-      return Page.navigate({url: 'https://tylingsoft.com'})
-    })
+    await Page.enable()
+    await Page.navigate({ url: 'https://tylingsoft.com' })
 
     // Evaluate outerHTML after page has loaded.
-    Page.loadEventFired(() => {
-      Runtime.evaluate({expression: 'document.body.outerHTML'}).then((result) => {
-        console.log(result.result.value)
-        client.close()
-        chrome.kill('SIGINT')
-      })
+    Page.loadEventFired(async () => {
+      const result = await Runtime.evaluate({ expression: 'document.body.outerHTML' })
+      console.log(result.result.value)
+      client.close()
+      chrome.kill('SIGINT')
     })
   }).on('error', (err) => {
     console.error('Cannot connect to browser:', err)
     chrome.kill('SIGINT')
   })
-}, 5000)
+}, 3000)
