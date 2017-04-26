@@ -1,7 +1,10 @@
 const spawn = require('child_process').spawn
 
-const proc = spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+const chrome = spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   [
+    '--headless',
+    '--disable-gpu',
+    '--remote-debugging-port=9222',
     '--user-data-dir=/Users/tyler.liu/src/js/chrome-headless-demo/chrome-user-data-dir',
     '--no-default-browser-check',
     '--no-first-run',
@@ -13,6 +16,8 @@ const proc = spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome
   ]
 )
 
+
+
 setTimeout(function () {
-  const result = proc.kill('SIGINT')
+  const result = chrome.kill('SIGINT')
 }, 5000)
